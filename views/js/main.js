@@ -399,8 +399,7 @@ var pizzaElementGenerator = function(i) {
 };
 
 // resizePizzas(size) is called when the slider in the "Our Pizzas" section of the website moves.
-var resizePizzas = function(size) {
-  window.performance.mark("mark_start_resize");   // User Timing API function
+var resizePizzas = (function() {
 
   // Changes the value for the size of the pizza above the slider
   function changeSliderLabel(size) {
@@ -418,52 +417,56 @@ var resizePizzas = function(size) {
         console.log("bug in changeSliderLabel");
     }
   }
-
-  changeSliderLabel(size);
-
-   // Returns the size difference to change a pizza element from one size to another. Called by changePizzaSlices(size).
-  function determineDx (elem, size) {
-    var oldWidth = elem.offsetWidth;
-    var windowWidth = document.querySelector("#randomPizzas").offsetWidth;
-    var oldSize = oldWidth / windowWidth;
-
-    // Changes the slider value to a percent width
-    function sizeSwitcher (size) {
-      switch(size) {
-        case "1":
-          return 0.25;
-        case "2":
-          return 0.3333;
-        case "3":
-          return 0.5;
-        default:
-          console.log("bug in sizeSwitcher");
-      }
+  
+  // Changes the slider value to a percent width
+  function sizeSwitcher (size) {
+    switch(size) {
+      case "1":
+        return 0.25;
+      case "2":
+        return 0.3333;
+      case "3":
+        return 0.5;
+      default:
+        console.log("bug in sizeSwitcher");
     }
-
-    var newSize = sizeSwitcher(size);
-    var dx = (newSize - oldSize) * windowWidth;
-
-    return dx;
   }
-
+  
   // Iterates through pizza elements on the page and changes their widths
   function changePizzaSizes(size) {
-    for (var i = 0; i < document.querySelectorAll(".randomPizzaContainer").length; i++) {
-      var dx = determineDx(document.querySelectorAll(".randomPizzaContainer")[i], size);
-      var newwidth = (document.querySelectorAll(".randomPizzaContainer")[i].offsetWidth + dx) + 'px';
-      document.querySelectorAll(".randomPizzaContainer")[i].style.width = newwidth;
+    var pizzas = document.querySelectorAll(".randomPizzaContainer");
+    for (var i = 0; i < pizzas.length; i++) {
+      var newwidths = [];
+      // Determine new widths
+      (function(i){
+        window.fastdom.measure(function(){
+          var oldwidth = pizzas[i].offsetWidth;
+          var windowwidth = document.querySelector("#randomPizzas").offsetWidth;
+          var oldsize = oldwidth / windowwidth;
+          var newsize = sizeSwitcher(size);
+          var dx = (newsize - oldsize) * windowwidth;
+          newwidths.push((pizzas[i].offsetWidth + dx) + 'px');
+        });
+        window.fastdom.mutate(function(){
+          pizzas[i].style.width = newwidths[i];
+        });
+      })(i);
     }
+    window.fastdom.scheduleFlush();
   }
+  
+  return function(size){
+    window.performance.mark("mark_start_resize");   // User Timing API function
+    changeSliderLabel(size);
+    changePizzaSizes(size);
 
-  changePizzaSizes(size);
-
-  // User Timing API is awesome
-  window.performance.mark("mark_end_resize");
-  window.performance.measure("measure_pizza_resize", "mark_start_resize", "mark_end_resize");
-  var timeToResize = window.performance.getEntriesByName("measure_pizza_resize");
-  console.log("Time to resize pizzas: " + timeToResize[timeToResize.length-1].duration + "ms");
-};
+    // User Timing API is awesome
+    window.performance.mark("mark_end_resize");
+    window.performance.measure("measure_pizza_resize", "mark_start_resize", "mark_end_resize");
+    var timeToResize = window.performance.getEntriesByName("measure_pizza_resize");
+    console.log("Time to resize pizzas: " + timeToResize[0].duration + "ms");
+  };
+})();
 
 window.performance.mark("mark_start_generating"); // collect timing data
 
@@ -502,10 +505,20 @@ function updatePositions() {
   window.performance.mark("mark_start_frame");
 
   var items = document.querySelectorAll('.mover');
+  var st = document.body.scrollTop;
+  var lefts = [];
   for (var i = 0; i < items.length; i++) {
-    var phase = Math.sin((document.body.scrollTop / 1250) + (i % 5));
-    items[i].style.left = items[i].basicLeft + 100 * phase + 'px';
+    (function(i){
+      window.fastdom.measure(function(){
+        var phase = Math.sin((st / 1250) + (i % 5));
+        lefts.push(items[i].basicLeft + 100 * phase + 'px');
+      });
+      window.fastdom.mutate(function(){
+        items[i].style.left = lefts[i];
+      });
+    })(i);
   }
+  window.fastdom.scheduleFlush();
 
   // User Timing API to the rescue again. Seriously, it's worth learning.
   // Super easy to create custom metrics.
