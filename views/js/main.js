@@ -439,6 +439,7 @@ var resizePizzas = (function() {
       var newwidths = [];
       // Determine new widths
       (function(i){
+        //register dom reads
         window.fastdom.measure(function(){
           var oldwidth = pizzas[i].offsetWidth;
           var windowwidth = document.querySelector("#randomPizzas").offsetWidth;
@@ -447,11 +448,13 @@ var resizePizzas = (function() {
           var dx = (newsize - oldsize) * windowwidth;
           newwidths.push((pizzas[i].offsetWidth + dx) + 'px');
         });
+        //register dom writes
         window.fastdom.mutate(function(){
           pizzas[i].style.width = newwidths[i];
         });
       })(i);
     }
+    //Batch execute dom reads, then dom writes
     window.fastdom.scheduleFlush();
   }
   
@@ -509,15 +512,18 @@ function updatePositions() {
   var lefts = [];
   for (var i = 0; i < items.length; i++) {
     (function(i){
+      //register dom reads
       window.fastdom.measure(function(){
         var phase = Math.sin((st / 1250) + (i % 5));
         lefts.push(items[i].basicLeft + 100 * phase + 'px');
       });
+      //register dom writes
       window.fastdom.mutate(function(){
         items[i].style.left = lefts[i];
       });
     })(i);
   }
+  //batch execute dom reads, then writes
   window.fastdom.scheduleFlush();
 
   // User Timing API to the rescue again. Seriously, it's worth learning.

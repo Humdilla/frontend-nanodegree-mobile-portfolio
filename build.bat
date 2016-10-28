@@ -19,6 +19,8 @@ for %%f in (views\js\*) do (
 )
 :: Optimize images
 del /q views\optimized_images\*
-magick convert -resize 720x540 -quality 33 views\images\pizzeria.jpg views\optimized_images\pizzeria.jpg
+del /q optimized_img\*
+magick convert -resize 720x540 -quality 10 views\images\pizzeria.jpg views\optimized_images\pizzeria.jpg
 magick convert views\images\pizza.png PNG8:views\optimized_images\pizza.png
+magick convert -quality 50 img\profilepic.jpg optimized_img\profilepic.jpg
 @echo on
