@@ -16,6 +16,8 @@ Cameron Pittman, Udacity Course Developer
 cameron *at* udacity *dot* com
 */
 
+'use strict';
+
 // As you may have realized, this website randomly generates pizzas.
 // Here are arrays of all possible pizza ingredients.
 var pizzaIngredients = {};
@@ -285,6 +287,8 @@ function getNoun(y) {
 var adjectives = ["dark", "color", "whimsical", "shiny", "noisy", "apocalyptic", "insulting", "praise", "scientific"];  // types of adjectives for pizza titles
 var nouns = ["animals", "everyday", "fantasy", "gross", "horror", "jewelry", "places", "scifi"];                        // types of nouns for pizza titles
 
+var pizzasDiv = document.getElementById('randomPizzas');
+
 // Generates random numbers for getAdj and getNoun functions and returns a new pizza name
 function generator(adj, noun) {
   var adjectives = getAdj(adj);
@@ -402,16 +406,17 @@ var pizzaElementGenerator = function(i) {
 var resizePizzas = (function() {
 
   // Changes the value for the size of the pizza above the slider
+  var pizzaSize = document.getElementById('pizzaSize');
   function changeSliderLabel(size) {
     switch(size) {
       case "1":
-        document.querySelector("#pizzaSize").innerHTML = "Small";
+        pizzaSize.innerHTML = "Small";
         return;
       case "2":
-        document.querySelector("#pizzaSize").innerHTML = "Medium";
+        pizzaSize.innerHTML = "Medium";
         return;
       case "3":
-        document.querySelector("#pizzaSize").innerHTML = "Large";
+        pizzaSize.innerHTML = "Large";
         return;
       default:
         console.log("bug in changeSliderLabel");
@@ -434,7 +439,7 @@ var resizePizzas = (function() {
   
   // Iterates through pizza elements on the page and changes their widths
   function changePizzaSizes(size) {
-    var pizzas = document.querySelectorAll(".randomPizzaContainer");
+    var pizzas = document.getElementById("pizza0");
     for (var i = 0; i < pizzas.length; i++) {
       var newwidths = [];
       // Determine new widths
@@ -442,7 +447,7 @@ var resizePizzas = (function() {
         //register dom reads
         window.fastdom.measure(function(){
           var oldwidth = pizzas[i].offsetWidth;
-          var windowwidth = document.querySelector("#randomPizzas").offsetWidth;
+          var windowwidth = pizzasDiv.offsetWidth;
           var oldsize = oldwidth / windowwidth;
           var newsize = sizeSwitcher(size);
           var dx = (newsize - oldsize) * windowwidth;
@@ -475,7 +480,6 @@ window.performance.mark("mark_start_generating"); // collect timing data
 
 // This for-loop actually creates and appends all of the pizzas when the page loads
 for (var i = 2; i < 100; i++) {
-  var pizzasDiv = document.getElementById("randomPizzas");
   pizzasDiv.appendChild(pizzaElementGenerator(i));
 }
 
@@ -503,11 +507,11 @@ function logAverageFrame(times) {   // times is the array of User Timing measure
 // https://www.igvita.com/slides/2012/devtools-tips-and-tricks/jank-demo.html
 
 // Moves the sliding background pizzas based on scroll position
+var items;
 function updatePositions() {
   frame++;
   window.performance.mark("mark_start_frame");
 
-  var items = document.querySelectorAll('.mover');
   var st = document.body.scrollTop;
   var lefts = [];
   for (var i = 0; i < items.length; i++) {
@@ -551,7 +555,8 @@ document.addEventListener('DOMContentLoaded', function() {
     elem.style.width = "73.333px";
     elem.basicLeft = (i % cols) * s;
     elem.style.top = (Math.floor(i / cols) * s) + 'px';
-    document.querySelector("#movingPizzas1").appendChild(elem);
+    document.getElementById("movingPizzas1").appendChild(elem);
   }
+  items = document.querySelectorAll('.mover');
   updatePositions();
 });
