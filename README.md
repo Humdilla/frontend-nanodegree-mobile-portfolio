@@ -13,5 +13,8 @@
 * Inlined minified css and js
 * Added media query to non-essential css and async tag to non-essential js
 * Slight optimizations to functions using closures to prevent function redefinition.
+* For loop optimizations
 * Reduced the amount of element queries
+* Using getElementById instead of querySelector
 * Using ImageMagick to optimize images
+* GPU acceleration
