@@ -382,7 +382,7 @@ var pizzaElementGenerator = function(i) {
   pizzaContainer.id = "pizza" + i;                // gives each pizza element a unique id
   pizzaImageContainer.style.width="35%";
 
-  pizzaImage.src = "images/pizza.png";
+  pizzaImage.src = "optimized_images/pizza.png";
   pizzaImage.classList.add("img-responsive");
   pizzaImageContainer.appendChild(pizzaImage);
   pizzaContainer.appendChild(pizzaImageContainer);
@@ -548,16 +548,19 @@ window.addEventListener('scroll', updatePositions);
 
 // Generates the sliding pizzas when the page loads.
 document.addEventListener('DOMContentLoaded', function() {
-  var cols = 8;
+  // Reduced number of background pizzas
   var s = 256;
-  for (var i = 0, elem; i < 200; i++) {
-    var elem = document.createElement('img');
-    elem.className = 'mover';
-    elem.src = "images/pizza.png";
-    elem.style.height = "100px";
-    elem.style.width = "73.333px";
+  var cols = Math.ceil(window.innerWidth/s);
+  var rows = Math.ceil(window.innerHeight/s);
+  var n = cols*rows;
+  for (var i = 0, elem; i < n; i++) {
+    elem = document.createElement('img');
     elem.basicLeft = (i % cols) * s;
     elem.style.top = (Math.floor(i / cols) * s) + 'px';
+    elem.className = 'mover';
+    elem.src = "optimized_images/pizza.png";
+    elem.style.height = "100px";
+    elem.style.width = "73.333px";
     document.getElementById("movingPizzas1").appendChild(elem);
   }
   // Select movers once to reduce element selector calls

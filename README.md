@@ -18,3 +18,4 @@
 * Using getElementById instead of querySelector
 * Using ImageMagick to optimize images
 * GPU acceleration
+* Reduced number of background pizzas
